@@ -1,0 +1,21 @@
+import pyodbc
+
+#Step 1: Connect to SQL Server
+conx = pyodbc.connect("DRIVER={SQL Server}; \
+                      SERVER=SERVERNAME;\
+                      Database=DATABASENAME; \
+                      TRUSTED_CONNECTED=yes")
+
+#Step 2: List with records
+records= [["A","3","5.5"], ["B","4","7.9"]]
+
+#Step 3: Statement with the SQL sintaxis
+query = "INSERT INTO Ventas VALUES (?,?,?,)"
+
+#Step 4: Connect the cursor
+cursor = conx.cursor()
+cursor.executemany(query, records)
+cursor.commit()
+
+#Step 5: Close the connection
+conx.close()
