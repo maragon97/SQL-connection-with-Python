@@ -1,0 +1,46 @@
+import pandas as pd
+import pyodbc
+import glob
+
+list_xlsx=glob.glob("ETLSQL\*.xlsx")
+
+print(list_xlsx)
+
+#EXTRACT
+def extract_from_xlsx(file_to_process):
+    dframe = pd.read_excel(file_to_process)
+    return dframe
+
+
+def extract():
+    #Empty dataframe
+    extracted_data = pd.DataFrame(columns=["MARCA","PRODUCTO","VENTAS"])
+
+    #Append data
+    for xlsxfile in list_xlsx:
+        extracted_data = extracted_data.append(extract_from_xlsx(xlsxfile), ignore_index=True)
+    return(extracted_data)
+    
+df= extract()
+print(df)
+
+#Iterate all the values
+all_value = []
+for index, row in df.iterrows():
+    value = (row[0], row[1], row[2])
+    all_value.append(value)
+
+query = "INSERT INTO Productos VALUES (?,?,?)"
+
+conx = pyodbc.connect("DRIVER={SQL Server}; \
+                      SERVER=DESKTOP-LTT45Q4\SQLEXPRESS;\
+                      Database=PRUEBA; \
+                      TRUSTED_CONNECTED=yes")
+
+#Connect cursor and execute query
+cursor = conx.cursor()
+cursor.executemany(query, all_value)
+cursor.commit()
+
+#Close the conection
+conx.close()
